@@ -19,30 +19,17 @@ class Jx3ItemSearchStar(Star):
         # 可以在这里进行一些异步的初始化操作，例如加载配置等
         logger.info("剑网3物品查询插件异步初始化完成。")
 
-    @filter.message() # 监听所有消息，不再需要特定命令前缀
+    @filter.command("剑网3物品", "jx3物品") # 修正为有效的命令装饰器，并使用您指定的关键词
     async def search_jx3_item(self, event: AstrMessageEvent):
         """
         查询剑网3物品百科信息。
-        用法：在聊天中直接提及“剑网3物品 [物品名称]”或“jx3物品 [物品名称]”即可触发。
-        例如：“剑网3物品 沧海间” 或 “我想查一下jx3物品 沧海间”
+        用法：/剑网3物品 [物品名称] 或 /jx3物品 [物品名称]
         """
-        full_message = event.get_plain_text().strip() # 获取完整的消息文本并去除首尾空格
-        item_name = None
+        item_name = event.get_arg_text() # 获取指令后的参数作为物品名称
 
-        # 检查消息中是否包含关键词并提取物品名称
-        if "剑网3物品" in full_message: # 关键词修改为 "剑网3物品"
-            # 找到 "剑网3物品" 后的内容作为物品名称
-            item_name = full_message.split("剑网3物品", 1)[1].strip()
-        elif "jx3物品" in full_message: # 关键词修改为 "jx3物品"
-            # 找到 "jx3物品" 后的内容作为物品名称
-            item_name = full_message.split("jx3物品", 1)[1].strip()
-        
-        # 如果没有提取到物品名称，或者物品名称为空，则不进行查询
-        # 只有当消息明确是“剑网3物品”或“jx3物品”且没有后续内容时，才给出提示
         if not item_name:
-            if full_message.lower() == "剑网3物品" or full_message.lower() == "jx3物品":
-                yield event.plain_result("请在“剑网3物品”或“jx3物品”后提供您要查询的物品名称。例如：剑网3物品 沧海间")
-            logger.debug(f"消息 '{full_message}' 未包含有效物品查询关键词或物品名称为空。")
+            yield event.plain_result("请提供您要查询的物品名称。例如：/剑网3物品 沧海间")
+            logger.warning(f"用户 {event.get_sender_name()} 未提供物品名称进行查询。")
             return
 
         logger.info(f"收到来自 {event.get_sender_name()} 的物品查询请求：'{item_name}'")
